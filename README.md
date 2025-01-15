@@ -1,6 +1,6 @@
 Финальный проект 4-го спринта.
 Автотесты API для учебного сервиса "Яндекс самокат"
- (https://qa-scooter.praktikum-services.ru/)
+  (https://qa-scooter.praktikum-services.ru/)
 
 Автотесты включают в себя тестирование ручек:
 - создание курьера
