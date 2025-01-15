@@ -14,6 +14,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 public class ListOrderTest {
 
@@ -45,6 +46,7 @@ public class ListOrderTest {
         }
         catch (Exception e) {
             System.out.println("Request Timeout Error");
+            assertNotNull("504 Gateway time out", null);
         }
     }
 
