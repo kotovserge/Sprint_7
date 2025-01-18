@@ -1,24 +1,25 @@
 package order;
 
 import base.BaseHttpClient;
-import courier.CourierDataDelete;
 import io.restassured.response.ValidatableResponse;
+import io.qameta.allure.Step;
+
+import constants.Url;
 
 public class OrderApi extends BaseHttpClient{
 
-    private final String orderCreateApi = "/api/v1/orders/";
-    private final String orderListApi = "/api/v1/orders";
-    private final String orderCancelApi = "/api/v1/orders/cancel/";
-
+    @Step("Send post order create")
     public ValidatableResponse create(Object body) {
-        return doPostRequest(orderCreateApi, body);
+        return doPostRequest(Url.ORDER_CREATE_API, body);
     }
 
+    @Step("Send post order list")
     public ValidatableResponse getList() {
-        return doGetRequest(orderListApi);
+        return doGetRequest(Url.ORDER_LIST_API);
     }
 
+    @Step("Send post order cancel")
     public ValidatableResponse cancel(int track) {
-        return doPutRequest(orderCancelApi+"?track="+track);
+        return doPutRequest(Url.ORDER_CANCEL_API + "?track="+track);
     }
 }

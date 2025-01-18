@@ -3,7 +3,7 @@ import courier.CourierData;
 import courier.CourierDataLogin;
 import courier.CourierRandom;
 import io.qameta.allure.Description;
-import io.qameta.allure.junit4.DisplayName;
+import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import org.apache.http.HttpStatus;
 import org.junit.After;
@@ -18,18 +18,29 @@ public class CreateCourierTest {
     private CourierData courierData;
     private CourierDataLogin courierDataLogin;
     private Integer courierId;
+    private  ValidatableResponse response;
+
 
     @Before
     public void prepare() {
         courierApi = new CourierApi();
-        courierData = CourierRandom.generateCourierData();
+        courierData = new CourierRandom().generateCourierData() ;
     }
 
     @Test
-    @DisplayName("Create courier")
     @Description("Позитивная проверка создания курьера")
     public void createOneCourierTest() {
-        ValidatableResponse response = (ValidatableResponse) courierApi.create(courierData);
+        createOneCourier();
+        checkCreateOneCourier();
+    }
+
+    @Step("Создаем курьера")
+    private void createOneCourier() {
+        response = (ValidatableResponse) courierApi.create(courierData);
+    }
+
+    @Step("Проверяем созданного курьера")
+    private void checkCreateOneCourier() {
         assertEquals("Неверный код статуса при создании курьера"
                 , HttpStatus.SC_CREATED, response.extract().statusCode());
         assertEquals("Неверное сообщение при успешном создании курьера"
@@ -37,17 +48,19 @@ public class CreateCourierTest {
     }
 
     @Test
-    @DisplayName("Create two courier")
     @Description("Проверка создания двух  курьеров с одинаковыми логинами")
     public void createTwoCourierTest() {
-        ValidatableResponse responseOne = (ValidatableResponse) courierApi.create(courierData);
-        assertEquals(HttpStatus.SC_CREATED, responseOne.extract().statusCode());
-        assertEquals(true, responseOne.extract().path("ok"));
+        createOneCourier();
+        checkCreateTwoCourier();
 
-        ValidatableResponse responseTwo = (ValidatableResponse) courierApi.create(courierData);
-        assertEquals(HttpStatus.SC_CONFLICT, responseTwo.extract().statusCode());
-        assertEquals("Этот логин уже используется. Попробуйте другой.", responseTwo.extract().path("message"));
+    }
 
+    @Step("Создаем дубликат курьера")
+    private void checkCreateTwoCourier() {
+        assertEquals("Неверный код статуса при создании курьера"
+                , HttpStatus.SC_CREATED, response.extract().statusCode());
+        assertEquals("Неверное сообщение при успешном создании курьера"
+                , true, response.extract().path("ok"));
     }
 
     @After

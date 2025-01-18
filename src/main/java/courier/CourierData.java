@@ -1,5 +1,15 @@
 package courier;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
+
+//@Setter
+//@Getter
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class CourierData {
     private String login;
     private String password;

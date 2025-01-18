@@ -3,6 +3,7 @@ import courier.CourierData;
 import courier.CourierDataLogin;
 import courier.CourierRandom;
 import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,11 +21,12 @@ public class LoginCourierTest {
     private CourierApi courierApi;
     private CourierData courierData;
     private Integer courierId;
+    private ValidatableResponse response;
 
     @Before
     public void prepare() {
         courierApi = new CourierApi();
-        courierData = CourierRandom.generateCourierData();
+        courierData = new CourierRandom().generateCourierData() ;
         courierApi.create(courierData);
     }
 
@@ -34,7 +36,19 @@ public class LoginCourierTest {
     public void loginCourierPozitivTest() {
         CourierDataLogin courierDataLogin = new CourierDataLogin(
                 courierData.getLogin(), courierData.getPassword());
-        ValidatableResponse response = courierApi.login(courierDataLogin);
+        loginCourier(courierDataLogin);
+        checkLoginCourierPositiv();
+    }
+
+    @Step("Авторизируем курьера")
+    private void loginCourier(CourierDataLogin courierDataLogin) {
+
+        this.response = courierApi.login(courierDataLogin);
+    }
+
+    @Step("Проверяем авторизацию курьера")
+    private void checkLoginCourierPositiv() {
+
         assertThat("Неверный статус код при авторизации курьера",
                 response.extract().statusCode(), equalTo(HttpStatus.SC_OK));
         assertThat("Неверное  сообщение при позитивной авторизации курьера",
@@ -43,17 +57,15 @@ public class LoginCourierTest {
 
     @Test
     @DisplayName("Login courier with wrong login")
-    @Description("Проверка авторизации курьера с неверным логин")
+    @Description("Проверка авторизации курьера с неверным логином")
     public void loginCourierNegativLoginTest() {
         CourierDataLogin courierDataLogin = new CourierDataLogin(
                 RandomStringUtils.randomAlphabetic(5),
                 courierData.getPassword());
-        ValidatableResponse response = courierApi.login(courierDataLogin);
-        assertThat("Неверный статус код при авторизации курьера",
-                response.extract().statusCode(), equalTo(HttpStatus.SC_NOT_FOUND));
-        assertThat("Неверное сообщение при авторизации курьера с неверным логином",
-                response.extract().path("message"), equalTo("Учетная запись не найдена"));
+        loginCourier(courierDataLogin);
+        checkLoginCourierNegativ();
     }
+
 
     @Test
     @DisplayName("Login courier with wrong password")
@@ -62,10 +74,15 @@ public class LoginCourierTest {
         CourierDataLogin courierDataLogin = new CourierDataLogin(
                 courierData.getLogin(),
                 RandomStringUtils.randomAlphabetic(8));
-        ValidatableResponse response = courierApi.login(courierDataLogin);
+        loginCourier(courierDataLogin);
+        checkLoginCourierNegativ();
+    }
+
+    @Step("Проверяем авторизации курьера с неверным логин или паролем")
+    private void checkLoginCourierNegativ() {
         assertThat("Неверный статус код при авторизации курьера",
                 response.extract().statusCode(), equalTo(HttpStatus.SC_NOT_FOUND));
-        assertThat("Неверное сообщение при авторизации курьера с неверным паролем",
+        assertThat("Неверное сообщение при авторизации курьера с неверным логином",
                 response.extract().path("message"), equalTo("Учетная запись не найдена"));
     }
 
@@ -75,11 +92,9 @@ public class LoginCourierTest {
     public void loginCourierWithoutLoginTest() {
         CourierDataLogin courierDataLogin = new CourierDataLogin(
                 "", courierData.getPassword());
-        ValidatableResponse response = courierApi.login(courierDataLogin);
-        assertThat("Неверный статус код при авторизации курьера",
-                response.extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
-        assertThat("Неверное сообщение при авторизации курьера без логином",
-                response.extract().path("message"), equalTo("Недостаточно данных для входа"));
+
+        loginCourier(courierDataLogin);
+        checkLoginWithoutLoginPassword();
     }
 
     @Test
@@ -88,10 +103,15 @@ public class LoginCourierTest {
     public void oginCouriervWithoutPaswordTest() {
         CourierDataLogin courierDataLogin = new CourierDataLogin(
                 courierData.getLogin(), "");
-        ValidatableResponse response = courierApi.login(courierDataLogin);
+        loginCourier(courierDataLogin);
+        checkLoginWithoutLoginPassword();
+    }
+
+    @Step("Проверяем авторизацию без логина или пароля")
+    private void checkLoginWithoutLoginPassword() {
         assertThat("Неверный статус код при авторизации курьера",
                 response.extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
-        assertThat("Неверное сообщение при авторизации курьера с неверным паролем",
+        assertThat("Неверное сообщение при авторизации курьера без логином",
                 response.extract().path("message"), equalTo("Недостаточно данных для входа"));
     }
 

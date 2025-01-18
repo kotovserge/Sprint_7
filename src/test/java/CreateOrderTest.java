@@ -1,3 +1,4 @@
+import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import order.OrderApi;
 import order.OrderData;
@@ -18,6 +19,7 @@ public class CreateOrderTest {
     private OrderApi orderApi;
     private OrderData orderData;
     private Integer track;
+    private ValidatableResponse response;
 
     @Before
     public void prepare() {
@@ -38,7 +40,7 @@ public class CreateOrderTest {
                 phone, renTime, deliveryDate, comment, colour);
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = " Цвет самоката - {8}")
     public static Object[][] setParams() {
         return new Object[][] {
                 {"Иван","Иванов","Москва, ул.Каланчевская", "Красные ворота", "+79871234567", 3, "2025-01-20", "Позвонить", List.of("BLACK")},
@@ -50,11 +52,22 @@ public class CreateOrderTest {
 
     @Test
     public void orderTest() {
-        ValidatableResponse response = orderApi.create(orderData);
+        createOrder();
+        checkGetOrder();
+    }
+
+    @Step("Создаем заказ")
+    public void createOrder() {
+
+        this.response = orderApi.create(orderData);
+    }
+
+    @Step("Проверяем заказ")
+    public void checkGetOrder() {
         track = response.extract().path("track");
-        System.out.println(track);
         assertEquals(HttpStatus.SC_CREATED, response.extract().statusCode());
         assertEquals(Integer.class, response.extract().path("track").getClass() );
+
     }
 
     @After

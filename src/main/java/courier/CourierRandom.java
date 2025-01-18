@@ -1,13 +1,20 @@
 package courier;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import net.datafaker.Faker;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Locale;
 
 public class CourierRandom {
 
-    public static CourierData generateCourierData() {
-        return new CourierData(
-                RandomStringUtils.randomAlphabetic(5),
-                RandomStringUtils.randomAlphabetic(8),
-                RandomStringUtils.randomAlphabetic(10));
+    Faker faker = new Faker(new Locale("ru"));
+
+    public  CourierData generateCourierData() {
+        String login = StringUtils.left(faker.name().username(),10);
+        String password = StringUtils.left(faker.internet().password(),10);
+        String firstName = StringUtils.left(faker.name().firstName(),10);
+        return new CourierData( login, password, firstName);
+
     }
+
 }

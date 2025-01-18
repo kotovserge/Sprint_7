@@ -15,12 +15,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ListOrderTest {
 
     private OrderApi orderApi;
     private OrderData orderData;
     private Integer track;
+    private ValidatableResponse response;
 
     @Before
     public void prepare() {
@@ -37,17 +39,13 @@ public class ListOrderTest {
     @DisplayName("Get list order")
     @Description("Проверка получения списка заказов")
     public void getListOrderTest() {
-        try {
             ValidatableResponse response = orderApi.getList();
             assertThat("Неверный статус код при получении списка заказов",
                     response.extract().statusCode(), equalTo(HttpStatus.SC_OK));
             assertThat("Список заказов пустой",
                     response.extract().path("orders"), notNullValue());
-        }
-        catch (Exception e) {
-            System.out.println("Request Timeout Error");
-            assertNotNull("504 Gateway time out", null);
-        }
+            System.out.println(response.extract().statusCode());
+
     }
 
     @After
